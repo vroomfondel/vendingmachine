@@ -27,7 +27,7 @@ from vendingmachine.utils.datapersistence import (
 _password_pattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$"
 _password_pattern_compiled = re.compile(_password_pattern)
 
-_username_pattern = "^([A-Za-z0-9]|[-])*$"  # "^(?=.*?[a-z])(?=.*?[0-9]).*$"
+_username_pattern = "^(?=.*?[A-Z])(?=.*?[a-z]|[-]).*$"  # "^(?=.*?[a-z])(?=.*?[0-9]).*$"
 _username_pattern_compiled = re.compile(_username_pattern)
 
 

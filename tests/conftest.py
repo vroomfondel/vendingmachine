@@ -86,7 +86,7 @@ async def get_new_access_token(
 async def create_buyer_modulescoped(fastapi_client: AsyncClient) -> Tuple[str, str, str, UUID]:
     """returns tuple (access_token, refresh_token, username, userid)"""
     pf: str = f"{platform.node()}-{os.getpid()}!"
-    username: str = f"PYTEST-BUYER-MODULE-{pf}"
+    username: str = f"PyTest-BUYER-MODULE-{pf}"
     usertype: str = "BUYER"
     password: str = "MEissECRE4ddd!"
     response: Response = await fastapi_client.post(
@@ -137,7 +137,7 @@ async def create_buyer_modulescoped(fastapi_client: AsyncClient) -> Tuple[str, s
 async def create_buyer(fastapi_client: AsyncClient) -> Tuple[str, str, str, UUID]:
     """returns tuple (access_token, refresh_token, username, userid)"""
     pf: str = f"{platform.node()}-{os.getpid()}!"
-    username: str = f"PYTEST-BUYER-{pf}"
+    username: str = f"PyTest-BUYER-{pf}"
     usertype: str = "BUYER"
     password: str = "MEissECRE4ddd!"
     response: Response = await fastapi_client.post(
@@ -148,7 +148,7 @@ async def create_buyer(fastapi_client: AsyncClient) -> Tuple[str, str, str, UUID
 
     # logger.trace(response.text)
     response_data = response.json()
-    # logger.trace(response_data)
+    logger.debug(response_data)
 
     assert response.status_code == 201
     assert "username" in response_data and response_data["username"] == username
@@ -187,7 +187,7 @@ async def create_buyer(fastapi_client: AsyncClient) -> Tuple[str, str, str, UUID
 async def create_seller(fastapi_client: AsyncClient) -> Tuple[str, str, str, UUID]:
     """returns tuple (access_token, refresh_token, username, userid)"""
     pf: str = f"{platform.node()}-{os.getpid()}!"
-    username: str = f"PYTEST-SELLER-{pf}"
+    username: str = f"PyTest-SELLER-{pf}"
     usertype: str = "SELLER"
     password: str = "MEissECRE4ddd!"
     response: Response = await fastapi_client.post(
