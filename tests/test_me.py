@@ -18,3 +18,17 @@ async def test_me(fastapi_client: AsyncClient, create_buyer: Tuple[str, str, str
     print(response_json)
 
     assert response.status_code == status.HTTP_200_OK
+
+
+async def test_password_change(fastapi_client: AsyncClient, create_buyer: Tuple[str, str, str, UUID]) -> None:
+    jsoninput: dict = {"password": "lalaHUHU1234!"}
+
+    response: Response = await fastapi_client.patch(
+        "/users/me",
+        headers={"Authorization": f"Bearer {create_buyer[0]}", "content-type": "application/json"},
+        json=jsoninput,
+    )
+    response_json: dict = response.json()
+    print(response_json)
+
+    assert response.status_code == status.HTTP_200_OK
