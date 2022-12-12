@@ -9,7 +9,7 @@ role can deposit coins into the machine and make purchases. The vending machine 
 
 - Used this as a basis for a fastapi-demo-app using OAUTH2-authorization with HS256 and/or RS256 signed JWT tokens with the 
 possibiility of rotating keys and (in case of RS256) edge-verification of the JWT with only possessing the public-key.
-- Used this a starting point to use deta ( https://web.deta.sh ) for demo-purposes (currently API is live here: https://6v42p6.deta.dev/ )
+- Used this a starting point to use deta ( https://web.deta.sh ) for demo-purposes (currently API is live here: https://6v42p6.deta.dev/ and openapi specs (e.g. for import into Postman) can be retrieved here: https://6v42p6.deta.dev/openapi.json )
 - Docker image (amd+arm64): https://hub.docker.com/repository/docker/vroofoo/vendingmachine 
 
 ## Build/CI (via github actions)
