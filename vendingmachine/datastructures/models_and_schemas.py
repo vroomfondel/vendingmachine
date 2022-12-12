@@ -158,6 +158,14 @@ class UserName(CheckableBaseModel):
     _username_validator = validator("username", pre=False, allow_reuse=True)(_pydantic_username_validator)
 
 
+class UserPassword(CheckableBaseModel):
+    """
+    just a password
+    """
+
+    password: str = Field(min_length=7, max_length=42, regex=_password_pattern)
+
+
 class UserWithNameAndType(UserName):
     """extension of the username-schema/model to also convey the user-type"""
 
@@ -169,7 +177,7 @@ class UserWithPassword(UserWithNameAndType):
     extension of the username+type-schema/model
     """
 
-    password: str = Field(min_length=8, max_length=42, regex=_password_pattern)
+    password: str = Field(min_length=7, max_length=42, regex=_password_pattern)
 
 
 class UserWithPasswordHashAndID(UserWithNameAndType):

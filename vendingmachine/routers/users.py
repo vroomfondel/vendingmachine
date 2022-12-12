@@ -19,6 +19,7 @@ from ..datastructures.models_and_schemas import (
     UserType,
     UserWithPassword,
     UserWithPasswordHashAndID,
+    UserPassword,
 )
 
 from vendingmachine.utils.auth import (
@@ -212,8 +213,13 @@ async def read_user_me(me: Union[Buyer, Seller] = Depends(get_current_user)) -> 
 
 
 @router.patch("/me", response_model=UserSelf, response_model_exclude_none=True, responses=responses_401)
-async def update_user(me: Union[Buyer, Seller] = Depends(get_current_user)) -> Optional[Union[Buyer, Seller]]:
+async def update_user(
+    userpass: UserPassword, me: Union[Buyer, Seller] = Depends(get_current_user)
+) -> Optional[Union[Buyer, Seller]]:
     """updates the user - in this regard only changeable data atm is password."""
+
+    hashed_pw: str = create_password_hash(userpass.password)
+    me.password_hashed = hashed_pw
 
     saved_user: Optional[Union[Seller, Buyer]] = me.copy(update=me.dict())
     if saved_user:
