@@ -1,0 +1,27 @@
+-r requirements-local.txt
+
+pytest
+pytest-asyncio
+anyio
+trio
+httpx
+
+pre-commit
+
+# linting
+isort
+black
+mypy
+mypy-extensions
+
+# mypy helpers
+types-cachetools
+types-aiofiles
+types-pytz
+
+# local black-connect-daemon
+aiohttp
+
+
+
+
