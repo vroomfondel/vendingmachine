@@ -1,0 +1,51 @@
+name: "run pytests"
+
+# on: [push, pull_request]
+# on: [workflow_call]
+on:
+  workflow_run:
+    workflows: ["black-lint and static type check"]
+    types: [completed]
+
+#jobs:
+#  on-success:
+#    runs-on: ubuntu-latest
+#    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#    steps:
+#      - run: echo 'The triggering workflow passed'
+#  on-failure:
+#    runs-on: ubuntu-latest
+#    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+#    steps:
+#      - run: echo 'The triggering workflow failed'
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+
+      - name: setting up python env
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: get some runtime info
+        run: |
+          echo PWD: $(pwd)
+          echo ENV: $(env)
+          echo GH-REF: ${{ github.ref }}
+          echo GH-SHA: ${{ github.sha }}
+          tree
+
+      - name: installing pip-packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: run pytest
+        env:
+          DETA_PROJECT_KEY: ${{ secrets.DETA_PROJECT_KEY }}
+        run: pytest .
