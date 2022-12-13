@@ -9,6 +9,8 @@ from loguru import logger
 
 from vendingmachine import routers
 
+import vendingmachine.utils.configuration as conf
+
 from vendingmachine.utils.configuration import settings
 
 
@@ -44,6 +46,34 @@ app = FastAPI(
     license_info={"name": "MIT", "url": "https://github.com/vroomfondel/vendingmachine/LICENSE.txt"},
     openapi_tags=__app_tags_metadata,
 )
+
+
+@app.on_event("startup")
+async def startup_event() -> None:
+    if conf._startup_event_called:
+        return None
+
+    conf._startup_event_called = True
+
+    logger.info("Calling startup event")
+
+    from vendingmachine.datastructures.models_and_schemas import KeyDesignation
+    from vendingmachine.utils import auth
+
+    logger.debug(f"DETA_RUNTIME_DETECTED: {settings.deta_runtime_detected()}")
+    logger.debug(f"TIMZEONE SET: {settings.TZ} || {os.getenv('TZ')}")
+
+    if settings.JWT_KEYID == "AUTO":  # AUTO-setting matching keyid if KEYID is set to "AUTO"
+        kdes: KeyDesignation = KeyDesignation[settings.JWT_ALGORITHM]
+        keyid: Optional[str] = await auth.retrieve_AUTO_keyid(kdes)
+        if not keyid:
+            raise RuntimeError(f"Key with ID {keyid} and designation {kdes.value} not found.")
+        settings.JWT_KEYID = keyid  # overwrite with selected...
+        logger.info(f"AUTO-SELECTED KEYID={keyid} for JWT_ALGORITHM={kdes}")
+
+
+if settings.deta_runtime_detected():
+    conf._startup_event_callable = startup_event
 
 
 app.include_router(routers.users, prefix="/users")
@@ -91,25 +121,6 @@ async def health(
 
 
 app.include_router(routers.ROOT)
-
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    logger.info("Calling startup event")
-
-    from vendingmachine.datastructures.models_and_schemas import KeyDesignation
-    from vendingmachine.utils import auth
-
-    logger.debug(f"DETA_RUNTIME_DETECTED: {settings.deta_runtime_detected()}")
-    logger.debug(f"TIMZEONE SET: {settings.TZ} || {os.getenv('TZ')}")
-
-    if settings.JWT_KEYID == "AUTO":  # AUTO-setting matching keyid if KEYID is set to "AUTO"
-        kdes: KeyDesignation = KeyDesignation[settings.JWT_ALGORITHM]
-        keyid: Optional[str] = await auth.retrieve_AUTO_keyid(kdes)
-        if not keyid:
-            raise RuntimeError(f"Key with ID {keyid} and designation {kdes.value} not found.")
-        settings.JWT_KEYID = keyid  # overwrite with selected...
-        logger.info(f"AUTO-SELECTED KEYID={keyid} for JWT_ALGORITHM={kdes}")
 
 
 @app.on_event("shutdown")

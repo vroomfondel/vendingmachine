@@ -31,7 +31,9 @@ from ..utils.datapersistence import (
     get_key_ids_by_designation,
     save_issued_token,
 )
+
 from .configuration import settings
+import vendingmachine.utils.configuration as conf
 from anyio import Lock  # :-)
 from passlib.context import CryptContext
 
@@ -223,8 +225,20 @@ async def check_if_user_has_session(userid: UUID) -> bool:
     return valid_access_tokens > 0  # imho relevant that current access-tokens are there
 
 
+async def ensure_startup_event_triggered() -> None:
+    if conf._startup_event_called:
+        return
+
+    if settings.deta_runtime_detected() and conf._startup_event_callable:
+        await conf._startup_event_callable()  # btw.: multiple calls do no harm...
+        conf._startup_event_callable = None
+
+
 async def create_refresh_token(userid: UUID) -> Tuple[str, UUID]:
     _payload: dict = {"sub": userid}
+
+    await ensure_startup_event_triggered()
+
     return await create_token_longform(
         _payload,
         keyid=settings.JWT_KEYID,
@@ -235,6 +249,9 @@ async def create_refresh_token(userid: UUID) -> Tuple[str, UUID]:
 
 async def create_access_token(userid: UUID) -> Tuple[str, UUID]:
     _payload: dict = {"sub": userid}
+
+    await ensure_startup_event_triggered()
+
     return await create_token_longform(
         _payload,
         keyid=settings.JWT_KEYID,

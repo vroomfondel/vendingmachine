@@ -1,7 +1,5 @@
-import asyncio
 import os
 
-import vendingmachine
 from vendingmachine import app
 from vendingmachine.utils.configuration import settings
 

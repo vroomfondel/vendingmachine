@@ -1,7 +1,7 @@
 import os
 import pathlib
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal, Optional, Callable
 
 from loguru import logger
 from pydantic import BaseSettings, Field
@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     class Config:
         case_sensitive = True
         env_file = Path(startdir, ".detaSECRET")  # can be multiple files -> os.ENV has priority!
+
+
+# deta-related "workaround"
+_startup_event_called: bool = False
+_startup_event_callable: Optional[Callable] = None
 
 
 settings: Settings = Settings(TZ="Europe/Berlin")
