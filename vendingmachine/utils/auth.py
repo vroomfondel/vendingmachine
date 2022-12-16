@@ -44,9 +44,9 @@ _tzberlin: tzinfo = pytz.timezone(
     "Europe/Berlin"
 )  # should not be necessary since TZ is set in ENV, but anyhow, better explicit than implicit :-]
 
-# copy from modes.users
+# copy from models.users
 _password_pattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$"
-_username_pattern = "^(?=.*?[a-z])(?=.*?[0-9]).*$"
+_username_pattern = "^(?=.*?[A-Z])(?=.*?[a-z]|[-]).*$"  # "^(?=.*?[a-z])(?=.*?[0-9]).*$"
 
 
 class CredentialsException(HTTPException):
