@@ -44,10 +44,6 @@ _tzberlin: tzinfo = pytz.timezone(
     "Europe/Berlin"
 )  # should not be necessary since TZ is set in ENV, but anyhow, better explicit than implicit :-]
 
-# copy from models.users
-_password_pattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$"
-_username_pattern = "^(?=.*?[A-Z])(?=.*?[a-z]|[-]).*$"  # "^(?=.*?[a-z])(?=.*?[0-9]).*$"
-
 
 class CredentialsException(HTTPException):
     """exception class for handling specific unauthorized-exceptions"""
@@ -75,8 +71,8 @@ class ScopedOAuth2PasswordRequestForm(OAuth2PasswordRequestForm):
     def __init__(
         self,
         grant_type: Literal["password"] = "password",
-        username: str = Form(regex=_username_pattern),
-        password: str = Form(regex=_password_pattern),
+        username: str = Form(regex=settings.USERNAME_PATTERN),
+        password: str = Form(regex=settings.PASSWORD_PATTERN),
         scope: Literal["user:buyer", "user:seller"] = "user:buyer",
         client_id: Literal[None] = None,
         client_secret: Literal[None] = None,

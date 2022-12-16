@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     TZ: str = Field(default="Europe/Berlin")  # explicitely setting TZ in ENV to Europe/Berlin if unset
     DETA_RUNTIME: str = Field(default="False")
     DETA_PROJECT_KEY: Optional[str]
+    PASSWORD_PATTERN: str = Field(default=r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$")
+    USERNAME_PATTERN: str = Field(default=r"^(?=.*?[A-Z])(?=.*?[a-z]|[-]).*$")
 
     def deta_runtime_detected(self) -> bool:
         print(f"{self.DETA_RUNTIME=}")

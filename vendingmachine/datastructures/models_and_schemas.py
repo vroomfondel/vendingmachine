@@ -20,14 +20,15 @@ from vendingmachine.utils.datapersistence import (
     save_product,
     save_user,
 )
+from vendingmachine.utils.configuration import settings
 
 
 # usermododel -> buyer, seller and ADMIN ?!
 
-_password_pattern = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$"
+_password_pattern = settings.PASSWORD_PATTERN
 _password_pattern_compiled = re.compile(_password_pattern)
 
-_username_pattern = "^(?=.*?[A-Z])(?=.*?[a-z]|[-]).*$"  # "^(?=.*?[a-z])(?=.*?[0-9]).*$"
+_username_pattern = settings.USERNAME_PATTERN
 _username_pattern_compiled = re.compile(_username_pattern)
 
 
