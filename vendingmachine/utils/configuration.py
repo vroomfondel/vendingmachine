@@ -23,7 +23,8 @@ logger.debug(f"{mepath=}\n{medir=}\n{parentdir=}\n{startdir=}")
 class Settings(BaseSettings):
     # https://pydantic-docs.helpmanual.io/usage/settings/
     JWT_TOKEN_URL: str = Field(default="/users/token")
-    JWT_KEYID: str = Field(default="AUTO")  # aff575eed5ae0b2f3c3974e64e325b6391ddb6607491bdf28446a8dfde680692")
+    JWT_KEYID: str = Field(default="AUTO")
+    JKU_URL: Optional[str] = Field(default="AUTO")
     JWT_ALGORITHM: Literal["HS256", "RS256"] = Field(default="RS256")
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30)
     JWT_REFRESH_TOKEN_EXPIRE_MINUTES: int = Field(default=10080)  # 1w

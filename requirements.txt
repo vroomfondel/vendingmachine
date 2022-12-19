@@ -4,7 +4,7 @@ pytz
 # python-jose[cryptography]  # alternatively for pyjwt + jwcrypto
 pyjwt
 jwcrypto
-jwtjwkhelper
+jwtjwkhelper>=0.0.6
 aiofiles
 python-multipart
 passlib[bcrypt]

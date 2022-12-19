@@ -2,6 +2,7 @@ import hashlib
 import math
 from base64 import b64encode
 from datetime import datetime, timedelta, tzinfo
+from functools import partial
 from secrets import token_bytes
 from typing import Any, Callable, List, Literal, Optional, Tuple, Union, cast
 from uuid import UUID, uuid4
@@ -20,6 +21,8 @@ from vendingmachine.datastructures.models_and_schemas import (
     Seller,
     UserType,
     UserWithPasswordHashAndID,
+    RS256JWKSet,
+    RS256JWKSetKey,
 )
 from vendingmachine.utils import datapersistence
 
@@ -30,6 +33,7 @@ from ..utils.datapersistence import (
     get_key_by_id_and_designation,
     get_key_ids_by_designation,
     save_issued_token,
+    get_valid_RS256_pubkey_pems_and_keyids,
 )
 
 from .configuration import settings
@@ -161,6 +165,24 @@ async def retrieve_AUTO_keyid(keydesignation: KeyDesignation = KeyDesignation.HS
     return None
 
 
+async def retrieve_all_valid_RS256_keys() -> RS256JWKSet:
+    """
+    get all not invalidated RS256 designated keys
+    """
+
+    key_list: List[RS256JWKSetKey] = []
+
+    pubkeys_ids: List[Tuple[str, str]] = await get_valid_RS256_pubkey_pems_and_keyids()
+    logger.debug(f"Found {len(pubkeys_ids)} Keys matching the desired keydesignation RS256 and being valid.")
+
+    for pubkey, kid in pubkeys_ids:
+        jwkdict: dict = jwtjwkhelper.get_pubkey_as_jwksetkeyentry(pubkey, kid)
+        me_key: RS256JWKSetKey = RS256JWKSetKey(**jwkdict)
+        key_list.append(me_key)
+
+    return RS256JWKSet(keys=key_list)
+
+
 async def retrieve_key(keyid: str, keydesignation: KeyDesignation = KeyDesignation.HS256) -> Optional[KeyDictEntry]:
     """
     not entirely correct to name it keytype, hence named it "keydesignation"
@@ -230,7 +252,7 @@ async def ensure_startup_event_triggered() -> None:
         conf._startup_event_callable = None
 
 
-async def create_refresh_token(userid: UUID) -> Tuple[str, UUID]:
+async def create_refresh_token(userid: UUID, request_url_base: str) -> Tuple[str, UUID]:
     _payload: dict = {"sub": userid}
 
     await ensure_startup_event_triggered()
@@ -240,10 +262,11 @@ async def create_refresh_token(userid: UUID) -> Tuple[str, UUID]:
         keyid=settings.JWT_KEYID,
         key_designation=KeyDesignation[settings.JWT_ALGORITHM],
         jwt_token_expire_minutes=settings.JWT_REFRESH_TOKEN_EXPIRE_MINUTES,
+        request_url_base=request_url_base,
     )
 
 
-async def create_access_token(userid: UUID) -> Tuple[str, UUID]:
+async def create_access_token(userid: UUID, request_url_base: str) -> Tuple[str, UUID]:
     _payload: dict = {"sub": userid}
 
     await ensure_startup_event_triggered()
@@ -253,6 +276,7 @@ async def create_access_token(userid: UUID) -> Tuple[str, UUID]:
         keyid=settings.JWT_KEYID,
         key_designation=KeyDesignation[settings.JWT_ALGORITHM],
         jwt_token_expire_minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES,
+        request_url_base=request_url_base,
     )
 
 
@@ -260,6 +284,7 @@ async def create_token_longform(
     payload: dict,
     keyid: str,
     key_designation: KeyDesignation,
+    request_url_base: str,
     jwt_token_expire_minutes: int = 10,
     refresh_token_id: Optional[UUID] = None,  # is None for refresh-token itself
 ) -> Tuple[str, UUID]:
@@ -275,10 +300,20 @@ async def create_token_longform(
 
     tokenid: UUID = uuid4()
 
+    jku: Optional[str] = None
+
     if kde.keydesignation == KeyDesignation.RS256 and kde.public:
         encrypter = jwtjwkhelper.create_jwt_rs256
         keyid_calculated = get_hash_of_str(kde.public)
         logger.trace(f"{kde.public=} {keyid=} {keyid_calculated=}")
+
+        jku = settings.JKU_URL
+        if jku == "AUTO":
+            jku = f"{request_url_base}/.well-known/jwks.json"
+            jku = jku.replace("//", "/")  # replace double-slashes with single slash
+        if jku:
+            encrypter = partial(jwtjwkhelper.create_jwt_rs256, jku=jku)
+
     elif kde.keydesignation == KeyDesignation.HS256 and kde.private:
         encrypter = jwtjwkhelper.create_jwt_hs256
         keyid_calculated = get_hash_of_str(kde.private)

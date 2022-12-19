@@ -15,7 +15,7 @@ help:
 	@printf "\ndocker-run \n\trun in (locally) built docker-image\n"
 	@printf "\ndocker-run-dh \n\trun LATEST image from DockerHub\n"
 
-venv_activated=if [ -z $${VIRTUAL_ENV+x} ]; then printf "activating venv...\n" ; source venv/bin/activate ; else printf "venv already activated\n"; fi
+venv_activated=if [ -z $${VIRTUAL_ENV+x} ]; then printf "activating venv...\n" ; source venv39/bin/activate || exit 123; else printf "venv already activated\n"; fi
 
 install: venv39
 

@@ -87,6 +87,8 @@ app.include_router(routers.products, prefix="/products")
 
 app.include_router(routers.buy, prefix="/buy")
 
+app.include_router(routers.jwk, prefix="/.well-known")
+
 
 def _wants_explicitly_json_response(request: Request) -> bool:
     """little helper function to check the accept-header for accepting json"""

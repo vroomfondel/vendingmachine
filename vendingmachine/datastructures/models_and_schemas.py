@@ -83,6 +83,20 @@ class KeyDictEntry(BaseModel):
         return values
 
 
+# https://www.rfc-editor.org/rfc/rfc7517#section-4
+class RS256JWKSetKey(BaseModel):
+    alg: Literal["RS256"] = "RS256"
+    kty: Literal["RSA"] = "RSA"
+    use: Literal["sig"] = "sig"
+    n: str
+    e: str
+    kid: str
+
+
+class RS256JWKSet(BaseModel):
+    keys: List[RS256JWKSetKey]
+
+
 class RefreshToken(BaseModel):
     """just a model containing the 'refresh_token'"""
 

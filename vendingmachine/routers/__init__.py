@@ -4,3 +4,4 @@ from .products import router as products
 from .reset import router as reset
 from .ROOT import router as ROOT
 from .users import router as users
+from .jwk import router as jwk

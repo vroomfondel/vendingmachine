@@ -149,6 +149,20 @@ async def get_key_ids_by_designation(keydesignation: Literal["HS256", "RS256"] =
     return ret
 
 
+async def get_valid_RS256_pubkey_pems_and_keyids() -> List[Tuple[str, str]]:
+    ret: List[Tuple[str, str]] = []
+
+    for keydata in await get_data_by_field(db=AvailableDBS.keys, fieldname="keydesignation", fieldvalue="RS256"):
+        invalidated: Optional[str] = keydata["invalidated_at"]
+        if invalidated:
+            logger.debug(f'INVALID KEY: {keydata["id"]=} {keydata["invalidated_at"]=}')
+            continue
+
+        ret.append((keydata["public"], keydata["id"]))
+
+    return ret
+
+
 async def is_token_in_deleted_tokens_db(tokenid: UUID) -> bool:
     _ret: List[dict] = await get_data_by_key(db=AvailableDBS.tokens_deleted, keyvalue=tokenid)
 
